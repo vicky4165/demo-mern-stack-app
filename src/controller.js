@@ -20,6 +20,7 @@ exports.getTodos = async (req, res) => {
 exports.saveTodo = async (req, res) => {
   try {
     let { title } = req.body;
+    console.log("req: ", req.body);
     let todo = await Todo.findOne({ title });
     if(todo) return res.status(200).json({ err: "Todo with same title, already exist", data: null });
     todo = new Todo({ _id: new mongoose.Types.ObjectId() ,title });
