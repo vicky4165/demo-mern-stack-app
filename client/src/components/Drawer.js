@@ -16,13 +16,13 @@ const MENUS = [
   }
 ];
 
-export default function TemporaryDrawer({ drawerOpen, toggleDrawer }) {
+export default function TemporaryDrawer({ drawerOpen, toggleDrawer, toggleFormDialog }) {
   const DrawerList = (
     <Box sx={{ width: 250 }} role="presentation" onClick={() => toggleDrawer(false)}>
       <List>
         {MENUS.map(({ text, link, Icon }, index) => (
           <ListItem key={text} disablePadding>
-            <ListItemButton>
+            <ListItemButton onClick={() => toggleFormDialog(true)}>
               <ListItemIcon>
                 {Icon}
               </ListItemIcon>

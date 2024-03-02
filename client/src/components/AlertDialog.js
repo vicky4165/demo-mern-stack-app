@@ -6,7 +6,8 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 
-export default function AlertDialog({ dialogOpen, toggleDialog }) {
+export default function AlertDialog({ dialogOpen, toggleDialog, deleteTodo }) {
+
   return (
     <>
       <Dialog
@@ -14,20 +15,20 @@ export default function AlertDialog({ dialogOpen, toggleDialog }) {
         onClose={() => toggleDialog(false)}
         aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description"
+        fullWidth
       >
         <DialogTitle id="alert-dialog-title">
-          {"Use Google's location service?"}
+          Are you sure?
         </DialogTitle>
         <DialogContent>
           <DialogContentText id="alert-dialog-description">
-            Let Google help apps determine location. This means sending anonymous
-            location data to Google, even when no apps are running.
+            This note will be deleted
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => toggleDialog(false)}>Disagree</Button>
-          <Button onClick={() => toggleDialog(false)} autoFocus>
-            Agree
+          <Button onClick={() => toggleDialog(false)}>Cancel</Button>
+          <Button variant='contained' color='error' onClick={() => deleteTodo()} autoFocus>
+            Delete
           </Button>
         </DialogActions>
       </Dialog>

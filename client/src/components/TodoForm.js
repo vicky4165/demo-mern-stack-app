@@ -1,4 +1,3 @@
-import * as React from "react";
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
 import Dialog from "@mui/material/Dialog";
@@ -6,8 +5,7 @@ import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
-// let d = { todos, setTodos, formDialogOpen, toggleFormDialog };
-export default function TodoForm({ formDialogOpen, toggleFormDialog, updateTodos }) {
+export default function TodoForm({ formDialogOpen, toggleFormDialog, updateTodos, handleSnackbar }) {
 
   async function saveTodo(todo_title) {
     try {
@@ -21,6 +19,7 @@ export default function TodoForm({ formDialogOpen, toggleFormDialog, updateTodos
         console.log('Res: ', res);
         const todo = { ...res.data };
         updateTodos(todo);
+        handleSnackbar({ title: "Todo Saved", type: "success", open: true });
       } else {
         console.log("R: ", res);
       }
@@ -64,8 +63,8 @@ export default function TodoForm({ formDialogOpen, toggleFormDialog, updateTodos
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => toggleFormDialog(false)}>Cancel</Button>
-          <Button type="submit">Save</Button>
+          <Button onClick={() => toggleFormDialog(false)} variant="contained" color="secondary">Cancel</Button>
+          <Button variant="contained" color="success" type="submit">Save</Button>
         </DialogActions>
       </Dialog>
     </>
