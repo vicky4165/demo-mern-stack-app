@@ -1,21 +1,12 @@
 require("dotenv").config();
 const express = require('express')
 const cors = require("cors");
-// const path = require("path");
 const mongoose = require("mongoose");
-// const compression = require("compression");
-// const session = require("express-session");
-// const cookieParser = require("cookie-parser");
 const { DB_URL } = process.env;
 const app = express();
 
 //Database Connections Starts
-mongoose.connect(DB_URL, { 
-    useNewUrlParser: true, 
-    useUnifiedTopology: true,
-    autoIndex: true
-    // createIndexes:true
-});
+mongoose.connect(DB_URL, { });
 let db = mongoose.connection;
 db.once("open", () => console.log("Connected to MongoDB"));
 db.on("disconnected", () => console.log("Disonnected to MongoDB"));
@@ -25,16 +16,7 @@ db.on("error", err => console.log(err));
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(cors());
-// app.use(compression());
-// app.use(cookieParser());
-// app.use(session({
-//     name : 'demo-mern-stack-app',
-//     secret : 'demo-mern-stack-app-secret-key',
-//     resave : true,
-//     saveUninitialized: true,
-//     cookie : { maxAge:(1000 * 60 * 100) }      
-// }));
+// app.use(cors());
 
 //STATIC ROUTES
 // app.use(express.static(path.join(__dirname, "public")));

@@ -11,11 +11,14 @@ import EditIcon from '@mui/icons-material/Edit';
 import Divider from '@mui/material/Divider';
 import Box from '@mui/material/Box';
 import EditTodoForm from './EditTodoForm';
+import Loader from './Loader';
 
 export default function TodoList({ todos, updateTodos, handleSnackbar }) {
   const [selectedTodoId, setSelectedTodoId] = useState("");
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editFlag, setEditFlag] = useState(false);
+  const [showLoader, setShowLoader] = useState(false);
+  
 
   useEffect(() => {
     async function fetchTodos() {
@@ -28,6 +31,7 @@ export default function TodoList({ todos, updateTodos, handleSnackbar }) {
       }
     }
     fetchTodos();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   
   const toggleDialog = (val) =>  setDialogOpen(val);
@@ -66,6 +70,7 @@ export default function TodoList({ todos, updateTodos, handleSnackbar }) {
     setSelectedTodoId("");
   }
   const handleToggleCheckbox = (todoId) => async () => {
+    setShowLoader(true);
     const API_URL = `/api/todos/${todoId}`;
     try {
       let index = todos.findIndex(todo => todo._id === todoId);
@@ -78,19 +83,20 @@ export default function TodoList({ todos, updateTodos, handleSnackbar }) {
       });
       res = await res.json();
       if (res.err == null) {
-        console.log("Res: ", res);
         updateTodos(todos);
         handleSnackbar({ title: "Todo Updated", type: "success", open: true });
       } else {
-        console.log("R: ", res);
+        console.error("R: ", res);
       }
+      setShowLoader(false);
     } catch (e) {
-      console.log("ERR: ", e);
+      console.error("ERR: ", e);
     }
   };
 
   return (
     <>
+      {showLoader && <Loader />}
       {(editFlag && selectedTodoId) && <EditTodoForm handleUpdateTodo={handleUpdateTodo} handleSnackbar={handleSnackbar} todoId={selectedTodoId} />}
       {selectedTodoId && <AlertDialog dialogOpen={dialogOpen} toggleDialog={toggleDialog} deleteTodo={deleteTodo} />}
       <List sx={{ width: '100%', bgcolor: 'background.paper' }}>

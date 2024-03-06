@@ -19,7 +19,7 @@ function App() {
     if(Array.isArray(newTodos)) {
       setTodos([...newTodos]);
     } else {
-      setTodos([...todos, newTodos]);
+      setTodos([{ ...newTodos }, ...todos]);
     }
   }, [todos]);
   const handleSnackbar = useCallback((options) => setSnackbarOptions({ ...options }) , []);
