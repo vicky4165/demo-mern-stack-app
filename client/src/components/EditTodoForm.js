@@ -18,7 +18,7 @@ export default function TodoForm({ handleSnackbar, todoId, handleUpdateTodo }) {
         res = await res.json();
         console.log("Res: ", res);
         if (res.err == null) {
-          setTodoTitle(res.data.title);
+          setTodoTitle(res.data.title ?? "");
           setOpen(true);
         }
       } catch (e) {

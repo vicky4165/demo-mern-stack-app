@@ -13,7 +13,6 @@ import Box from '@mui/material/Box';
 import EditTodoForm from './EditTodoForm';
 
 export default function TodoList({ todos, updateTodos, handleSnackbar }) {
-  const [checked, setChecked] = useState([0]);
   const [selectedTodoId, setSelectedTodoId] = useState("");
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editFlag, setEditFlag] = useState(false);
@@ -30,16 +29,7 @@ export default function TodoList({ todos, updateTodos, handleSnackbar }) {
     }
     fetchTodos();
   }, []);
-  const handleToggle = (value) => () => {
-    const currentIndex = checked.indexOf(value);
-    const newChecked = [...checked];
-    if (currentIndex === -1) {
-      newChecked.push(value);
-    } else {
-      newChecked.splice(currentIndex, 1);
-    }
-    setChecked(newChecked);
-  };
+  
   const toggleDialog = (val) =>  setDialogOpen(val);
   const handleClickOnDelete = (id) => {
     toggleDialog(true)
@@ -75,18 +65,29 @@ export default function TodoList({ todos, updateTodos, handleSnackbar }) {
     setEditFlag(false);
     setSelectedTodoId("");
   }
-  const handleCheckboxChange = (e) => {
-    console.log(e)
-    console.log(e.target.attributes)
-    console.log(e.target.checked)
-    console.log(e.currentTarget.id);
-    const todoId = e.currentTarget.id;
-    let index = todos.findIndex(todo => todo._id === todoId);
-    todos[index].isCompleted = e.target.checked;
-    updateTodos(todos);
-    // setEditFlag(false);
-    // setSelectedTodoId("");
-  }
+  const handleToggleCheckbox = (todoId) => async () => {
+    const API_URL = `/api/todos/${todoId}`;
+    try {
+      let index = todos.findIndex(todo => todo._id === todoId);
+      let isCompleted = !todos[index].isCompleted;
+      todos[index].isCompleted = isCompleted;
+      let res = await fetch(API_URL, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ isCompleted }),
+      });
+      res = await res.json();
+      if (res.err == null) {
+        console.log("Res: ", res);
+        updateTodos(todos);
+        handleSnackbar({ title: "Todo Updated", type: "success", open: true });
+      } else {
+        console.log("R: ", res);
+      }
+    } catch (e) {
+      console.log("ERR: ", e);
+    }
+  };
 
   return (
     <>
@@ -121,14 +122,12 @@ export default function TodoList({ todos, updateTodos, handleSnackbar }) {
                 </>
               }
             >
-              <ListItemButton role={undefined} onClick={handleToggle(todo._id)} dense>
+              <ListItemButton role={undefined} onClick={handleToggleCheckbox(todo._id)} dense>
                 <ListItemIcon>
                   <Checkbox
                     edge="start"
                     id={todo._id}
-                    onChange={handleCheckboxChange}
                     checked={todo.isCompleted}
-                    // checked={checked.indexOf(todo._id) !== -1}
                     tabIndex={-1}
                     disableRipple
                     inputProps={{ 'aria-labelledby': labelId }}
