@@ -57,7 +57,7 @@ exports.updateTodo = async (req, res) => {
     todo = await todo.save();
     return res.status(200).json({
       err: null,
-      data: todo,
+      data: { ...todo._doc, title },
       existing_todo
     });
   } catch (e) {

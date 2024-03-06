@@ -10,11 +10,13 @@ import AlertDialog from "./AlertDialog";
 import EditIcon from '@mui/icons-material/Edit';
 import Divider from '@mui/material/Divider';
 import Box from '@mui/material/Box';
+import EditTodoForm from './EditTodoForm';
 
 export default function TodoList({ todos, updateTodos, handleSnackbar }) {
   const [checked, setChecked] = useState([0]);
   const [selectedTodoId, setSelectedTodoId] = useState("");
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [editFlag, setEditFlag] = useState(false);
 
   useEffect(() => {
     async function fetchTodos() {
@@ -44,7 +46,9 @@ export default function TodoList({ todos, updateTodos, handleSnackbar }) {
     setSelectedTodoId(id)
   };
   const handleClickOnEdit = (id) => {
-    console.log('id - ', id);
+    // console.log('id - ', id);
+    setSelectedTodoId(id);
+    setEditFlag(true);
   };
   const deleteTodo = async () => {
     try {
@@ -55,6 +59,7 @@ export default function TodoList({ todos, updateTodos, handleSnackbar }) {
         handleSnackbar({ title: "Todo Deleted", type: "success", open: true });
         const updatedTodos = todos.filter(item => item._id !== selectedTodoId);
         updateTodos(updatedTodos);
+        setSelectedTodoId("");
       } else {
         console.log("R: ", res);
       }
@@ -63,9 +68,29 @@ export default function TodoList({ todos, updateTodos, handleSnackbar }) {
       console.log("ERR: ", e);
     }
   }
+  const handleUpdateTodo = ({ title, _id }) => {
+    let index = todos.findIndex(todo => todo._id === _id);
+    todos[index].title = title;
+    updateTodos(todos);
+    setEditFlag(false);
+    setSelectedTodoId("");
+  }
+  const handleCheckboxChange = (e) => {
+    console.log(e)
+    console.log(e.target.attributes)
+    console.log(e.target.checked)
+    console.log(e.currentTarget.id);
+    const todoId = e.currentTarget.id;
+    let index = todos.findIndex(todo => todo._id === todoId);
+    todos[index].isCompleted = e.target.checked;
+    updateTodos(todos);
+    // setEditFlag(false);
+    // setSelectedTodoId("");
+  }
 
   return (
     <>
+      {(editFlag && selectedTodoId) && <EditTodoForm handleUpdateTodo={handleUpdateTodo} handleSnackbar={handleSnackbar} todoId={selectedTodoId} />}
       {selectedTodoId && <AlertDialog dialogOpen={dialogOpen} toggleDialog={toggleDialog} deleteTodo={deleteTodo} />}
       <List sx={{ width: '100%', bgcolor: 'background.paper' }}>
         {todos && todos.map((todo) => {
@@ -100,13 +125,16 @@ export default function TodoList({ todos, updateTodos, handleSnackbar }) {
                 <ListItemIcon>
                   <Checkbox
                     edge="start"
-                    checked={checked.indexOf(todo._id) !== -1}
+                    id={todo._id}
+                    onChange={handleCheckboxChange}
+                    checked={todo.isCompleted}
+                    // checked={checked.indexOf(todo._id) !== -1}
                     tabIndex={-1}
                     disableRipple
                     inputProps={{ 'aria-labelledby': labelId }}
                   />
                 </ListItemIcon>
-                <ListItemText id={labelId} primary={`${todo.title}`} />
+                <ListItemText className={todo.isCompleted ? 'todo-title-text' : ''} id={labelId} primary={`${todo.title}`} />
               </ListItemButton>
             </ListItem>
           );

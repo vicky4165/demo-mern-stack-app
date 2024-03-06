@@ -27,7 +27,7 @@ export default function AlertDialog({ dialogOpen, toggleDialog, deleteTodo }) {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => toggleDialog(false)}>Cancel</Button>
-          <Button variant='contained' color='error' onClick={() => deleteTodo()} autoFocus>
+          <Button variant='contained' color='error' onClick={() => deleteTodo()}>
             Delete
           </Button>
         </DialogActions>
