@@ -1,4 +1,7 @@
 import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { updateTodo, selectTodos } from "../redux/reducers/todoReducer";
+import { setIsLoading } from "../redux/reducers/loaderReducer";
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
 import Dialog from "@mui/material/Dialog";
@@ -6,7 +9,10 @@ import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
 
-export default function TodoForm({ handleSnackbar, todoId, handleUpdateTodo }) {
+export default function TodoForm({ todoId, handleSnackbar, resetClickOnEdit }) {
+  
+  const dispatch = useDispatch();
+  const todosList = useSelector(selectTodos);
   const API_URL = `/api/todos/${todoId}`;
   const [open, setOpen] = useState(false);
   const [todoTitle, setTodoTitle] = useState("");
@@ -28,7 +34,8 @@ export default function TodoForm({ handleSnackbar, todoId, handleUpdateTodo }) {
     fetchTodoDetails();
   }, [API_URL]);
 
-  async function updateTodo(todo_title) {
+  async function updateTodoMethod(todo_title) {
+    dispatch(setIsLoading({ isLoading: true }));
     try {
       let res = await fetch(API_URL, {
         method: "PUT",
@@ -37,16 +44,20 @@ export default function TodoForm({ handleSnackbar, todoId, handleUpdateTodo }) {
       });
       res = await res.json();
       if (res.err == null) {
-        console.log("Res: ", res);
-        const todo = { ...res.data };
-        handleUpdateTodo(todo)
+        let todos = [...todosList];
+        let index = todos.findIndex(todo => todo._id === res.data._id);
+        todos[index] = { ...res.data };
+        dispatch(updateTodo({ todos: todos }));
         handleSnackbar({ title: "Todo Updated", type: "success", open: true });
       } else {
         console.log("R: ", res);
       }
-      setOpen(false);
     } catch (e) {
       console.log("ERR: ", e);
+    } finally {
+      setOpen(false);
+      setTimeout(() => dispatch(setIsLoading({ isLoading: false })), 500);
+      resetClickOnEdit();
     }
   }
 
@@ -61,7 +72,7 @@ export default function TodoForm({ handleSnackbar, todoId, handleUpdateTodo }) {
             e.preventDefault();
             const formData = new FormData(e.currentTarget);
             const formJson = Object.fromEntries(formData.entries());
-            await updateTodo(formJson.edit_todo_title);
+            await updateTodoMethod(formJson.edit_todo_title);
           },
         }}
         fullWidth={true}
@@ -83,16 +94,8 @@ export default function TodoForm({ handleSnackbar, todoId, handleUpdateTodo }) {
           />
         </DialogContent>
         <DialogActions>
-          <Button
-            onClick={() => setOpen(false)}
-            variant="contained"
-            color="secondary"
-          >
-            Cancel
-          </Button>
-          <Button variant="contained" color="success" type="submit">
-            Update
-          </Button>
+          <Button onClick={() => setOpen(false)} variant="contained" color="secondary">Cancel</Button>
+          <Button variant="contained" color="success" type="submit">Update</Button>
         </DialogActions>
       </Dialog>
     </>

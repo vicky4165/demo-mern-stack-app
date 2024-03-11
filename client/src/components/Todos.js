@@ -1,4 +1,7 @@
 import { useEffect, useState } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { selectTodos, updateTodo, deleteTodo } from "../redux/reducers/todoReducer";
+import { setIsLoading } from "../redux/reducers/loaderReducer";
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
@@ -11,23 +14,27 @@ import EditIcon from '@mui/icons-material/Edit';
 import Divider from '@mui/material/Divider';
 import Box from '@mui/material/Box';
 import EditTodoForm from './EditTodoForm';
-import Loader from './Loader';
 
-export default function TodoList({ todos, updateTodos, handleSnackbar }) {
+export default function TodoList({ handleSnackbar }) {
   const [selectedTodoId, setSelectedTodoId] = useState("");
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editFlag, setEditFlag] = useState(false);
-  const [showLoader, setShowLoader] = useState(false);
-  
 
+  const todosList = useSelector(selectTodos);
+  const dispatch = useDispatch();
+  
   useEffect(() => {
     async function fetchTodos() {
+      dispatch(setIsLoading({ isLoading: true }));
       try {
         let res = await fetch(`/api/todos`);
         res = await res.json();
-        updateTodos(res.data ?? []);
+        const dbTodos = res.data ?? [];
+        dispatch(updateTodo({ todos: dbTodos }));
       } catch (e) {
         console.log('ERR: ', e);
+      } finally {
+        setTimeout(() => dispatch(setIsLoading({ isLoading: false })), 500);
       }
     }
     fetchTodos();
@@ -40,42 +47,40 @@ export default function TodoList({ todos, updateTodos, handleSnackbar }) {
     setSelectedTodoId(id)
   };
   const handleClickOnEdit = (id) => {
-    // console.log('id - ', id);
     setSelectedTodoId(id);
     setEditFlag(true);
   };
-  const deleteTodo = async () => {
+  const resetClickOnEdit = () => {
+    setSelectedTodoId("");
+    setEditFlag(false);
+  };
+  const deleteTodoMethod = async () => {
+    dispatch(setIsLoading({ isLoading: true }));
     try {
       let res = await fetch(`/api/todos/${selectedTodoId}`, { method: "DELETE" });
       res = await res.json();
       if (res.err == null) {
-        console.log('Res: ', res);
-        handleSnackbar({ title: "Todo Deleted", type: "success", open: true });
-        const updatedTodos = todos.filter(item => item._id !== selectedTodoId);
-        updateTodos(updatedTodos);
+        dispatch(deleteTodo({ todo: { _id: selectedTodoId } }));
         setSelectedTodoId("");
+        handleSnackbar({ title: "Todo Deleted", type: "success", open: true });
       } else {
-        console.log("R: ", res);
+        console.error("R: ", res);
       }
-      toggleDialog(false);
     } catch (e) {
-      console.log("ERR: ", e);
+      console.error("ERR: ", e);
+    } finally {
+      toggleDialog(false);
+      setTimeout(() => dispatch(setIsLoading({ isLoading: false })), 500);
     }
   }
-  const handleUpdateTodo = ({ title, _id }) => {
-    let index = todos.findIndex(todo => todo._id === _id);
-    todos[index].title = title;
-    updateTodos(todos);
-    setEditFlag(false);
-    setSelectedTodoId("");
-  }
   const handleToggleCheckbox = (todoId) => async () => {
-    setShowLoader(true);
+    dispatch(setIsLoading({ isLoading: true }));
     const API_URL = `/api/todos/${todoId}`;
     try {
+      let todos = [...todosList];
       let index = todos.findIndex(todo => todo._id === todoId);
-      let isCompleted = !todos[index].isCompleted;
-      todos[index].isCompleted = isCompleted;
+      let isCompleted = !todos[index].isCompleted;      
+      todos[index] = { ...todos[index], isCompleted: isCompleted };
       let res = await fetch(API_URL, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
@@ -83,24 +88,24 @@ export default function TodoList({ todos, updateTodos, handleSnackbar }) {
       });
       res = await res.json();
       if (res.err == null) {
-        updateTodos(todos);
+        dispatch(updateTodo({ todos: todos }));
         handleSnackbar({ title: "Todo Updated", type: "success", open: true });
       } else {
         console.error("R: ", res);
       }
-      setShowLoader(false);
     } catch (e) {
       console.error("ERR: ", e);
+    } finally {
+      setTimeout(() => dispatch(setIsLoading({ isLoading: false })), 500);
     }
   };
 
   return (
     <>
-      {showLoader && <Loader />}
-      {(editFlag && selectedTodoId) && <EditTodoForm handleUpdateTodo={handleUpdateTodo} handleSnackbar={handleSnackbar} todoId={selectedTodoId} />}
-      {selectedTodoId && <AlertDialog dialogOpen={dialogOpen} toggleDialog={toggleDialog} deleteTodo={deleteTodo} />}
+      {(editFlag && selectedTodoId) && <EditTodoForm todoId={selectedTodoId} handleSnackbar={handleSnackbar} resetClickOnEdit={resetClickOnEdit} />}
+      {selectedTodoId && <AlertDialog dialogOpen={dialogOpen} toggleDialog={toggleDialog} deleteTodoMethod={deleteTodoMethod} />}
       <List sx={{ width: '100%', bgcolor: 'background.paper' }}>
-        {todos && todos.map((todo) => {
+        {todosList && todosList.map((todo) => {
           const labelId = `checkbox-list-label-${todo._id}`;
           return (
             <ListItem
@@ -115,10 +120,7 @@ export default function TodoList({ todos, updateTodos, handleSnackbar }) {
                       borderColor: 'divider',
                       borderRadius: 2,
                       bgcolor: 'background.paper',
-                      color: 'text.secondary',
-                      '& svg': {
-                        m: 1,
-                      },
+                      color: 'text.secondary', '& svg': { m: 1, },
                     }}
                   >
                     <EditIcon onClick={() => handleClickOnEdit(todo._id)} />
@@ -130,14 +132,7 @@ export default function TodoList({ todos, updateTodos, handleSnackbar }) {
             >
               <ListItemButton role={undefined} onClick={handleToggleCheckbox(todo._id)} dense>
                 <ListItemIcon>
-                  <Checkbox
-                    edge="start"
-                    id={todo._id}
-                    checked={todo.isCompleted}
-                    tabIndex={-1}
-                    disableRipple
-                    inputProps={{ 'aria-labelledby': labelId }}
-                  />
+                  <Checkbox edge="start" id={todo._id} checked={todo.isCompleted} tabIndex={-1} disableRipple inputProps={{ 'aria-labelledby': labelId }} />
                 </ListItemIcon>
                 <ListItemText className={todo.isCompleted ? 'todo-title-text' : ''} id={labelId} primary={`${todo.title}`} />
               </ListItemButton>

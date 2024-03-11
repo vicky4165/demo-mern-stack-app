@@ -39,13 +39,14 @@ exports.updateTodo = async (req, res) => {
   try {
     let { id } = req.params;
     let { title, isCompleted } = req.body;
+    console.log('B: ', req.body);
     let todo = await Todo.findById(id);
     if(!todo) return res.status(200).json({ err: "Todo Doesn't exist", data: null });
     let existing_todo = await Todo.findOne({ title, _id: { $ne: id } });
     if(existing_todo) res.status(200).json({ err: "Todo with same title, already exist", data: null, existing_todo });
     
     todo.title = title ? title : todo.title;
-    todo.isCompleted = isCompleted ? isCompleted : todo.isCompleted;
+    todo.isCompleted = isCompleted === false || isCompleted === true ? isCompleted : todo.isCompleted;
     todo = await todo.save();
     
     return res.status(200).json({ err: null, data: { ...todo._doc, title } });

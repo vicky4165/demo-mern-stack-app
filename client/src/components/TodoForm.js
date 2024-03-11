@@ -1,3 +1,6 @@
+import { useDispatch } from "react-redux";
+import { saveTodo } from "../redux/reducers/todoReducer";
+import { setIsLoading } from "../redux/reducers/loaderReducer";
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
 import Dialog from "@mui/material/Dialog";
@@ -5,9 +8,13 @@ import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
-export default function TodoForm({ formDialogOpen, toggleFormDialog, updateTodos, handleSnackbar }) {
 
-  async function saveTodo(todo_title) {
+export default function TodoForm({ formDialogOpen, toggleFormDialog, handleSnackbar }) {
+  const dispatch = useDispatch();
+  
+  async function saveTodoMethod(todo_title) {
+    toggleFormDialog(false);
+    dispatch(setIsLoading({ isLoading: true }));
     try {
       let res = await fetch(`/api/todos`, {
         method: "POST",
@@ -16,16 +23,16 @@ export default function TodoForm({ formDialogOpen, toggleFormDialog, updateTodos
       });
       res = await res.json();
       if (res.err == null) {
-        console.log('Res: ', res);
         const todo = { ...res.data };
-        updateTodos(todo);
+        dispatch(saveTodo({ todo: todo }));
         handleSnackbar({ title: "Todo Saved", type: "success", open: true });
       } else {
         console.log("R: ", res);
       }
-      toggleFormDialog(false);
     } catch (e) {
       console.log("ERR: ", e);
+    } finally {
+      setTimeout(() => dispatch(setIsLoading({ isLoading: false })), 500);
     }
   }
 
@@ -40,27 +47,15 @@ export default function TodoForm({ formDialogOpen, toggleFormDialog, updateTodos
             event.preventDefault();
             const formData = new FormData(event.currentTarget);
             const formJson = Object.fromEntries(formData.entries());
-            await saveTodo(formJson.todo_title);
+            await saveTodoMethod(formJson.todo_title);
           },
         }}
         fullWidth={true}
       >
         <DialogTitle>Add Todo</DialogTitle>
         <DialogContent>
-          <DialogContentText>
-            To create todo, please enter todo title here.
-          </DialogContentText>
-          <TextField
-            autoFocus
-            required
-            margin="dense"
-            id="todo_title"
-            name="todo_title"
-            label="Todo title goes here"
-            type="text"
-            fullWidth
-            variant="standard"
-          />
+          <DialogContentText>To create todo, please enter todo title here.</DialogContentText>
+          <TextField autoFocus required margin="dense" id="todo_title" name="todo_title" label="Todo title goes here" type="text" fullWidth variant="standard" />
         </DialogContent>
         <DialogActions>
           <Button onClick={() => toggleFormDialog(false)} variant="contained" color="secondary">Cancel</Button>

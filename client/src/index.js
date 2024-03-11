@@ -6,17 +6,18 @@ import reportWebVitals from "./reportWebVitals";
 import CssBaseline from "@mui/material/CssBaseline";
 import { ThemeProvider } from "@mui/material/styles";
 import theme from "./theme";
+import { Provider } from "react-redux";
+import store from "./store";
 
 const rootElement = document.getElementById("root");
 const root = ReactDOM.createRoot(rootElement);
 root.render(
-  <ThemeProvider theme={theme}>
-    {/* CssBaseline kickstart an elegant, consistent, and simple baseline to build upon. */}
-    <CssBaseline />
-    <React.StrictMode>
+  <Provider store={store}>
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
       <App />
-    </React.StrictMode>
-  </ThemeProvider>
+    </ThemeProvider>
+  </Provider>
 );
 
 // If you want to start measuring performance in your app, pass a function

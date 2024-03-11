@@ -6,7 +6,7 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 
-export default function AlertDialog({ dialogOpen, toggleDialog, deleteTodo }) {
+export default function AlertDialog({ dialogOpen, toggleDialog, deleteTodoMethod }) {
 
   return (
     <>
@@ -17,19 +17,13 @@ export default function AlertDialog({ dialogOpen, toggleDialog, deleteTodo }) {
         aria-describedby="alert-dialog-description"
         fullWidth
       >
-        <DialogTitle id="alert-dialog-title">
-          Are you sure?
-        </DialogTitle>
+        <DialogTitle id="alert-dialog-title">Are you sure?</DialogTitle>
         <DialogContent>
-          <DialogContentText id="alert-dialog-description">
-            This note will be deleted
-          </DialogContentText>
+          <DialogContentText id="alert-dialog-description">This note will be deleted</DialogContentText>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => toggleDialog(false)}>Cancel</Button>
-          <Button variant='contained' color='error' onClick={() => deleteTodo()}>
-            Delete
-          </Button>
+          <Button variant='contained' color='error' onClick={() => deleteTodoMethod()}>Delete</Button>
         </DialogActions>
       </Dialog>
     </>
