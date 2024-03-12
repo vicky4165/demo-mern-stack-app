@@ -92,7 +92,7 @@ export default function TodoList() {
       res = await res.json();
       if (res.err == null) {
         dispatch(updateTodo({ todos: todos }));
-        setTimeout(() => enqueueSnackbar('Todo Updated', { autoHideDuration: 3000 }), constant.DEFAULT_TIMEOUT);
+        setTimeout(() => enqueueSnackbar('Todo Updated', { autoHideDuration: 3000, variant: "success" }), constant.DEFAULT_TIMEOUT);
       } else {
         console.error("R: ", res);
       }

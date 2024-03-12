@@ -39,7 +39,6 @@ exports.updateTodo = async (req, res) => {
   try {
     let { id } = req.params;
     let { title, isCompleted } = req.body;
-    console.log('B: ', req.body);
     let todo = await Todo.findById(id);
     if(!todo) return res.status(200).json({ err: "Todo Doesn't exist", data: null });
     let existing_todo = await Todo.findOne({ title, _id: { $ne: id } });

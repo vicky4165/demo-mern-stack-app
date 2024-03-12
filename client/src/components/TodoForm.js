@@ -28,7 +28,7 @@ export default function TodoForm({ formDialogOpen, toggleFormDialog }) {
       if (res.err == null) {
         const todo = { ...res.data };
         dispatch(saveTodo({ todo: todo }));
-        setTimeout(() => enqueueSnackbar('Todo Saved', { autoHideDuration: 3000 }), constant.DEFAULT_TIMEOUT);
+        setTimeout(() => enqueueSnackbar('Todo Saved', { autoHideDuration: 3000, variant: "success" }), constant.DEFAULT_TIMEOUT);
       } else {
         console.log("R: ", res);
       }

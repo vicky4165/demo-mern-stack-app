@@ -51,7 +51,7 @@ export default function TodoForm({ todoId, resetClickOnEdit }) {
         let index = todos.findIndex(todo => todo._id === res.data._id);
         todos[index] = { ...res.data };
         dispatch(updateTodo({ todos: todos }));
-        setTimeout(() => enqueueSnackbar('Todo Updated', { autoHideDuration: 3000 }), constant.DEFAULT_TIMEOUT)
+        setTimeout(() => enqueueSnackbar('Todo Updated', { autoHideDuration: 3000, variant: "success" }), constant.DEFAULT_TIMEOUT)
       } else {
         console.log("R: ", res);
       }
