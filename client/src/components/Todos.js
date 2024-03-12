@@ -14,12 +14,15 @@ import EditIcon from '@mui/icons-material/Edit';
 import Divider from '@mui/material/Divider';
 import Box from '@mui/material/Box';
 import EditTodoForm from './EditTodoForm';
+import { constant } from '../constants';
+import { useSnackbar } from 'notistack';
 
-export default function TodoList({ handleSnackbar }) {
+export default function TodoList() {
+
   const [selectedTodoId, setSelectedTodoId] = useState("");
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editFlag, setEditFlag] = useState(false);
-
+  const { enqueueSnackbar } = useSnackbar();
   const todosList = useSelector(selectTodos);
   const dispatch = useDispatch();
   
@@ -62,7 +65,7 @@ export default function TodoList({ handleSnackbar }) {
       if (res.err == null) {
         dispatch(deleteTodo({ todo: { _id: selectedTodoId } }));
         setSelectedTodoId("");
-        handleSnackbar({ title: "Todo Deleted", type: "success", open: true });
+        setTimeout(() => enqueueSnackbar('Todo Deleted', { variant: "error", autoHideDuration: 3000 }), constant.DEFAULT_TIMEOUT);
       } else {
         console.error("R: ", res);
       }
@@ -70,7 +73,7 @@ export default function TodoList({ handleSnackbar }) {
       console.error("ERR: ", e);
     } finally {
       toggleDialog(false);
-      setTimeout(() => dispatch(setIsLoading({ isLoading: false })), 500);
+      setTimeout(() => dispatch(setIsLoading({ isLoading: false })), constant.DEFAULT_TIMEOUT);
     }
   }
   const handleToggleCheckbox = (todoId) => async () => {
@@ -89,20 +92,20 @@ export default function TodoList({ handleSnackbar }) {
       res = await res.json();
       if (res.err == null) {
         dispatch(updateTodo({ todos: todos }));
-        handleSnackbar({ title: "Todo Updated", type: "success", open: true });
+        setTimeout(() => enqueueSnackbar('Todo Updated', { autoHideDuration: 3000 }), constant.DEFAULT_TIMEOUT);
       } else {
         console.error("R: ", res);
       }
     } catch (e) {
       console.error("ERR: ", e);
     } finally {
-      setTimeout(() => dispatch(setIsLoading({ isLoading: false })), 500);
+      setTimeout(() => dispatch(setIsLoading({ isLoading: false })), constant.DEFAULT_TIMEOUT);
     }
   };
 
   return (
     <>
-      {(editFlag && selectedTodoId) && <EditTodoForm todoId={selectedTodoId} handleSnackbar={handleSnackbar} resetClickOnEdit={resetClickOnEdit} />}
+      {(editFlag && selectedTodoId) && <EditTodoForm todoId={selectedTodoId} resetClickOnEdit={resetClickOnEdit} />}
       {selectedTodoId && <AlertDialog dialogOpen={dialogOpen} toggleDialog={toggleDialog} deleteTodoMethod={deleteTodoMethod} />}
       <List sx={{ width: '100%', bgcolor: 'background.paper' }}>
         {todosList && todosList.map((todo) => {

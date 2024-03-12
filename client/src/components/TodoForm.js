@@ -8,9 +8,12 @@ import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
+import { useSnackbar } from 'notistack';
+import { constant } from "../constants";
 
-export default function TodoForm({ formDialogOpen, toggleFormDialog, handleSnackbar }) {
+export default function TodoForm({ formDialogOpen, toggleFormDialog }) {
   const dispatch = useDispatch();
+  const { enqueueSnackbar } = useSnackbar();
   
   async function saveTodoMethod(todo_title) {
     toggleFormDialog(false);
@@ -25,7 +28,7 @@ export default function TodoForm({ formDialogOpen, toggleFormDialog, handleSnack
       if (res.err == null) {
         const todo = { ...res.data };
         dispatch(saveTodo({ todo: todo }));
-        handleSnackbar({ title: "Todo Saved", type: "success", open: true });
+        setTimeout(() => enqueueSnackbar('Todo Saved', { autoHideDuration: 3000 }), constant.DEFAULT_TIMEOUT);
       } else {
         console.log("R: ", res);
       }

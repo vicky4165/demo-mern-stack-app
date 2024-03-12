@@ -12,8 +12,8 @@ const fabStyle = {
 export default function FloatingActionButton({ toggleFormDialog }) {
   return (
     <Box sx={{ "& > :not(style)": { m: 1 } }}>
-      <Fab color="primary" aria-label="add" style={fabStyle}>
-        <AddIcon onClick={() => toggleFormDialog(true)} />
+      <Fab color="primary" aria-label="add" style={fabStyle} onClick={() => toggleFormDialog(true)}>
+        <AddIcon />
       </Fab>
     </Box>
   );

@@ -8,10 +8,13 @@ import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
+import { constant } from "../constants";
+import { useSnackbar } from 'notistack';
 
-export default function TodoForm({ todoId, handleSnackbar, resetClickOnEdit }) {
+export default function TodoForm({ todoId, resetClickOnEdit }) {
   
   const dispatch = useDispatch();
+  const { enqueueSnackbar } = useSnackbar();
   const todosList = useSelector(selectTodos);
   const API_URL = `/api/todos/${todoId}`;
   const [open, setOpen] = useState(false);
@@ -48,7 +51,7 @@ export default function TodoForm({ todoId, handleSnackbar, resetClickOnEdit }) {
         let index = todos.findIndex(todo => todo._id === res.data._id);
         todos[index] = { ...res.data };
         dispatch(updateTodo({ todos: todos }));
-        handleSnackbar({ title: "Todo Updated", type: "success", open: true });
+        setTimeout(() => enqueueSnackbar('Todo Updated', { autoHideDuration: 3000 }), constant.DEFAULT_TIMEOUT)
       } else {
         console.log("R: ", res);
       }
@@ -56,7 +59,7 @@ export default function TodoForm({ todoId, handleSnackbar, resetClickOnEdit }) {
       console.log("ERR: ", e);
     } finally {
       setOpen(false);
-      setTimeout(() => dispatch(setIsLoading({ isLoading: false })), 500);
+      setTimeout(() => dispatch(setIsLoading({ isLoading: false })), constant.DEFAULT_TIMEOUT);
       resetClickOnEdit();
     }
   }

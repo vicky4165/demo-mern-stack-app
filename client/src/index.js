@@ -8,6 +8,7 @@ import { ThemeProvider } from "@mui/material/styles";
 import theme from "./theme";
 import { Provider } from "react-redux";
 import store from "./store";
+import { SnackbarProvider } from 'notistack'
 
 const rootElement = document.getElementById("root");
 const root = ReactDOM.createRoot(rootElement);
@@ -15,7 +16,9 @@ root.render(
   <Provider store={store}>
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <App />
+      <SnackbarProvider>
+        <App />
+      </SnackbarProvider>
     </ThemeProvider>
   </Provider>
 );
