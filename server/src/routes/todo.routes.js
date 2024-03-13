@@ -1,7 +1,8 @@
 const router = require("express").Router();
-const Controller = require("./controller");
+const Controller = require("../controllers/todo.controller");
+const { checkUserAuth, checkReqMethod, uploadFile } = require('../middlewares');
 
-router.get("/", Controller.getTodos);
+router.get("/", checkReqMethod, checkUserAuth('admin'), Controller.getTodos);
 router.get("/:id", Controller.getTodo);
 router.put("/:id", Controller.updateTodo);
 router.delete("/:id", Controller.deleteTodo);

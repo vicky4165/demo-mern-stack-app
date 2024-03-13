@@ -1,10 +1,5 @@
 const mongoose = require("mongoose");
-const Todo = require("./todo.model");
-// const mongoose = require("mongoose");
-// const bcrypt = require("bcryptjs");
-// const { validationResult } = require("express-validator");
-// const jwt = require("jsonwebtoken");
-// const jwtKey = process.env.JWT_KEY;
+const Todo = require("../models/todo.model");
 
 exports.getTodos = async (req, res) => {
   try {
@@ -42,7 +37,7 @@ exports.updateTodo = async (req, res) => {
     let todo = await Todo.findById(id);
     if(!todo) return res.status(200).json({ err: "Todo Doesn't exist", data: null });
     let existing_todo = await Todo.findOne({ title, _id: { $ne: id } });
-    if(existing_todo) res.status(200).json({ err: "Todo with same title, already exist", data: null, existing_todo });
+    if(existing_todo) return res.status(200).json({ err: "Todo with same title, already exist", data: null, existing_todo });
     
     todo.title = title ? title : todo.title;
     todo.isCompleted = isCompleted === false || isCompleted === true ? isCompleted : todo.isCompleted;
